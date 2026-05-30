@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TblEmployee {
+  id              String            @id @default(uuid())
+  fullName        String
+  email           String            @unique
+  password        String
+  phone           String?
+  avatarUrl       String?
+  position        String
+  roleId          String
+  status          Status            @default(ACTIVE)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+  departmentId    String?
+  department      TblDepartment?    @relation(fields: [departmentId], references: [id])
+  role            TblRole           @relation(fields: [roleId], references: [id])
+  leaveRequests   TblLeaveRequest[] @relation("EmployeeLeaveRequests")
+  leadingProjects TblProject[]      @relation("ProjectLeader")
+  tasks           TblTask[]         @relation("TaskAssignee")
+  projects        TblProject[]      @relation("ProjectMembers")
+}
+
+model TblDepartment {
+  id          String        @id @default(uuid())
+  name        String        @unique
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  employees   TblEmployee[]
+}
+
+model TblProject {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  leaderId    String?
+  startDate   DateTime?
+  endDate     DateTime?
+  status      ProjectStatus @default(PLANNING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  leader      TblEmployee?  @relation("ProjectLeader", fields: [leaderId], references: [id])
+  tasks       TblTask[]
+  members     TblEmployee[] @relation("ProjectMembers")
+}
+
+model TblTask {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus   @default(TODO)
+  priority    Priority     @default(MEDIUM)
+  startDate   DateTime?
+  dueDate     DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  projectId   String
+  assigneeId  String?
+  resultNote  String?
+  resultUrl   String?
+  submittedAt DateTime?
+  assignee    TblEmployee? @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  project     TblProject   @relation(fields: [projectId], references: [id])
+}
+
+model TblLeaveRequest {
+  id         String      @id @default(uuid())
+  employeeId String
+  startDate  DateTime
+  endDate    DateTime
+  reason     String?
+  status     LeaveStatus @default(PENDING)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  employee   TblEmployee @relation("EmployeeLeaveRequests", fields: [employeeId], references: [id])
+}
+
+model TblRole {
+  id              String              @id @default(uuid())
+  name            String              @unique
+  description     String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  employees       TblEmployee[]
+  rolePermissions TblRolePermission[]
+}
+
+model TblPermission {
+  id              String              @id @default(uuid())
+  name            String              @unique
+  description     String?
+  createdAt       DateTime            @default(now())
+  rolePermissions TblRolePermission[]
+}
+
+model TblRolePermission {
+  id           String        @id @default(uuid())
+  roleId       String
+  permissionId String
+  createdAt    DateTime      @default(now())
+  permission   TblPermission @relation(fields: [permissionId], references: [id])
+  role         TblRole       @relation(fields: [roleId], references: [id])
+
+  @@unique([roleId, permissionId])
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+  RESIGNED
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
