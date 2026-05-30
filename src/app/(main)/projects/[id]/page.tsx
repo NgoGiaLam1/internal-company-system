@@ -10,6 +10,7 @@ import {
 import TaskSection from "@/components/projects/TaskSection";
 import ProjectMembersSection from "@/components/projects/ProjectMembersSection";
 import ProjectSettingsSection from "@/components/projects/ProjectSettingsSection";
+import ProjectTabsContent from "@/components/projects/ProjectTabsContent";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -198,6 +199,38 @@ export default async function ProjectDetailPage({
 
         </div>
 
+        {/* ================= QUICK STATS ================= */}
+        <div className="flex items-center gap-6 mt-6">
+          {/* Total Tasks */}
+          <div>
+            <p className="text-sm text-gray-500">
+              Tổng số task
+            </p>
+            <h3 className="text-2xl font-bold text-gray-800 mt-1">
+              {totalTasks}
+            </h3>
+          </div>
+
+          {/* Completed */}
+          <div>
+            <p className="text-sm text-gray-500">
+              Task đã hoàn thành
+            </p>
+            <h3 className="text-2xl font-bold text-green-600 mt-1">
+              {completedTasks}
+            </h3>
+          </div>
+          {/* Overdue */}
+          <div>
+            <p className="text-sm text-gray-500">
+              Task quá hạn
+            </p>
+            <h3 className="text-2xl font-bold text-red-600 mt-1">
+              {overdueTasks}
+            </h3>
+          </div>
+        </div>
+
         {/* ================= PROGRESS ================= */}
         <div className="mt-8">
 
@@ -228,150 +261,10 @@ export default async function ProjectDetailPage({
 
       </div>
 
-      {/* ================= QUICK STATS ================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-
-        {/* Total Tasks */}
-        <div className="bg-white rounded-2xl border shadow-sm p-5">
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <p className="text-sm text-gray-500">
-                Tổng công việc
-              </p>
-
-              <h3 className="text-2xl font-bold text-gray-800 mt-1">
-                {totalTasks}
-              </h3>
-
-            </div>
-
-            <div className="w-11 h-11 rounded-xl bg-blue-100 flex items-center justify-center">
-              <FolderKanban
-                className="text-blue-600"
-                size={20}
-              />
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* Completed */}
-        <div className="bg-white rounded-2xl border shadow-sm p-5">
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <p className="text-sm text-gray-500">
-                Đã hoàn thành
-              </p>
-
-              <h3 className="text-2xl font-bold text-green-600 mt-1">
-                {completedTasks}
-              </h3>
-
-            </div>
-
-            <div className="w-11 h-11 rounded-xl bg-green-100 flex items-center justify-center">
-              <CheckCircle2
-                className="text-green-600"
-                size={20}
-              />
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* Overdue */}
-        <div className="bg-white rounded-2xl border shadow-sm p-5">
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <p className="text-sm text-gray-500">
-                Task quá hạn
-              </p>
-
-              <h3 className="text-2xl font-bold text-red-600 mt-1">
-                {overdueTasks}
-              </h3>
-
-            </div>
-
-            <div className="w-11 h-11 rounded-xl bg-red-100 flex items-center justify-center">
-              <Clock3
-                className="text-red-600"
-                size={20}
-              />
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* Members */}
-        <div className="bg-white rounded-2xl border shadow-sm p-5">
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <p className="text-sm text-gray-500">
-                Thành viên
-              </p>
-
-              <h3 className="text-2xl font-bold text-indigo-600 mt-1">
-                {project.members.length}
-              </h3>
-
-            </div>
-
-            <div className="w-11 h-11 rounded-xl bg-indigo-100 flex items-center justify-center">
-              <Users
-                className="text-indigo-600"
-                size={20}
-              />
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* ================= MAIN CONTENT ================= */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-        {/* TASK SECTION */}
-        <div className="xl:col-span-2">
-
-          <TaskSection
-            projectId={project.id}
-            tasks={project.tasks}
-            members={project.members}
-          />
-
-        </div>
-
-        {/* SIDEBAR */}
-        <div className="space-y-6">
-          <ProjectSettingsSection
-            project={project}
-          />
-          <ProjectMembersSection
-            project={project}
-            employees={employees}
-          />
-
-        </div>
-
-      </div>
+      <ProjectTabsContent
+        project={project}
+        employees={employees}
+      />
 
     </div>
   );

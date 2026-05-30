@@ -100,20 +100,20 @@ export default function TaskSection({
     }
   };
 
-  const getStatusText = (
-    status: string
-  ) => {
-    switch (status) {
-      case "DONE":
-        return "Hoàn thành";
+  // const getStatusText = (
+  //   status: string
+  // ) => {
+  //   switch (status) {
+  //     case "DONE":
+  //       return "Hoàn thành";
 
-      case "IN_PROGRESS":
-        return "Đang thực hiện";
+  //     case "IN_PROGRESS":
+  //       return "Đang thực hiện";
 
-      default:
-        return "Chưa bắt đầu";
-    }
-  };
+  //     default:
+  //       return "Chưa bắt đầu";
+  //   }
+  // };
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border p-6">
@@ -173,13 +173,13 @@ export default function TaskSection({
                 onClick={() =>
                   router.push(`/tasks/${task.id}`)
                 }
-                className="border rounded-xl p-4 flex justify-between items-center cursor-pointer hover:border-blue-300 hover:bg-blue-50/40 transition"
+                className="border rounded-xl p-4 cursor-pointer hover:border-blue-300 hover:bg-blue-50/40 transition"
               >
 
-                <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-5">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
 
                   {/* LEFT */}
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0">
 
                     <div className="flex flex-wrap items-center gap-2 mb-3">
 
@@ -246,7 +246,7 @@ export default function TaskSection({
                   </div>
 
                   {/* RIGHT */}
-                  <div className="flex flex-col items-start xl:items-end gap-3 min-w-45">
+                  <div className="flex flex-col items-start md:items-end gap-3 min-w-45">
 
                     {/* Priority */}
                     <span

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import SubmitTaskForm from "@/components/tasks/SubmitTaskForm";
 import Link from "next/link";
+import TaskCommentsSection from "@/components/tasks/TaskCommentsSection";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -69,6 +70,33 @@ export default async function TaskDetailPage({ params }: Props) {
     include: {
       assignee: true,
       project: true,
+      comments: {
+
+        include: {
+
+          employee: {
+
+            select: {
+
+              id: true,
+
+              fullName: true,
+
+              avatarUrl: true,
+
+            }
+
+          }
+
+        },
+
+        orderBy: {
+
+          createdAt: "desc"
+
+        }
+
+      }
     },
   });
 
@@ -165,49 +193,12 @@ export default async function TaskDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Result */}
-        <div className="bg-white rounded-xl shadow border p-6">
-          <h2 className="text-lg font-semibold mb-4">
-            Kết quả công việc
-          </h2>
-
-          {task.resultNote || task.resultUrl || task.submittedAt ? (
-            <div className="space-y-4 text-sm">
-              <div>
-                <p className="text-gray-500 mb-1">Ghi chú</p>
-                <p className="font-medium">
-                  {task.resultNote || "Không có"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-gray-500 mb-1">Tệp / Link kết quả</p>
-                {task.resultUrl ? (
-                  <a
-                    href={task.resultUrl}
-                    target="_blank"
-                    className="text-blue-600 hover:underline font-medium"
-                  >
-                    Xem tài liệu
-                  </a>
-                ) : (
-                  <p className="font-medium">Không có</p>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div>
-              <p className="text-gray-400 text-sm mb-4">
-                Chưa có kết quả được nộp
-              </p>
-
-              {(currentUser?.role === "EMPLOYEE" ||
-                currentUser?.role === "MANAGER") && (
-                  <SubmitTaskForm taskId={task.id} />
-                )}
-            </div>
-          )}
-        </div>
+        {/* comment and file */}
+        <TaskCommentsSection
+          comments={task.comments ?? []}
+          currentUser={currentUser}
+          taskId={task.id}
+        />
       </div>
     </div>
   );
