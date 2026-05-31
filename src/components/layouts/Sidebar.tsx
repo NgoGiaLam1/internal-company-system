@@ -60,7 +60,16 @@ export default function Sidebar({
           const Icon = item.icon;
 
           const isActive =
-            pathname === item.href;
+
+            item.href === "/"
+
+              ? pathname === "/"
+
+              : pathname === item.href ||
+
+              pathname.startsWith(
+                item.href + "/"
+              );
 
           return (
             <Link
@@ -71,10 +80,9 @@ export default function Sidebar({
                 px-4 py-2 rounded-lg text-sm
                 transition
 
-                ${
-                  isActive
-                    ? "bg-blue-100 text-blue-600 font-medium"
-                    : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+                ${isActive
+                  ? "bg-blue-100 text-blue-600 font-medium"
+                  : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
                 }
               `}
             >

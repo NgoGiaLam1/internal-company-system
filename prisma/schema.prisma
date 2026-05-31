@@ -55,23 +55,24 @@ model TblProject {
 }
 
 model TblTask {
-  id              String           @id @default(uuid())
-  title           String
-  description     String?
-  status          TaskStatus       @default(TODO)
-  priority        Priority         @default(MEDIUM)
-  startDate       DateTime?
-  dueDate         DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  projectId       String
-  assigneeId      String?
-  resultNote      String?
-  resultUrl       String?
-  submittedAt     DateTime?
-  assignee        TblEmployee?     @relation("TaskAssignee", fields: [assigneeId], references: [id])
-  project         TblProject       @relation(fields: [projectId], references: [id])
-  comments TblTaskComment[]
+  id             String           @id @default(uuid())
+  title          String
+  description    String?
+  status         TaskStatus       @default(TODO)
+  priority       Priority         @default(MEDIUM)
+  startDate      DateTime?
+  dueDate        DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  projectId      String
+  assigneeId     String?
+  resultNote     String?
+  resultFileName String?
+  resultUrl      String?
+  submittedAt    DateTime?
+  assignee       TblEmployee?     @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  project        TblProject       @relation(fields: [projectId], references: [id])
+  comments       TblTaskComment[]
 }
 
 model TblTaskComment {

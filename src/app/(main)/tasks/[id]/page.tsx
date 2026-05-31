@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import SubmitTaskForm from "@/components/tasks/SubmitTaskForm";
 import Link from "next/link";
 import TaskCommentsSection from "@/components/tasks/TaskCommentsSection";
+import TaskInfo from "@/components/tasks/TaskInfo";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -156,43 +156,7 @@ export default async function TaskDetailPage({ params }: Props) {
 
       {/* Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-        <div className="bg-white rounded-xl shadow border p-6">
-          <h2 className="text-lg font-semibold mb-4">
-            Thông tin công việc
-          </h2>
-
-          <div className="space-y-4 text-sm">
-            <div className="border-b pb-3">
-              <p className="text-gray-500">Dự án</p>
-              <p className="font-medium">{task.project.name}</p>
-            </div>
-
-            <div className="border-b pb-3">
-              <p className="text-gray-500">Người phụ trách</p>
-              <p className="font-medium">
-                {task.assignee?.fullName || "Chưa giao"}
-              </p>
-            </div>
-
-            <div className="border-b pb-3">
-              <p className="text-gray-500">Deadline</p>
-              <p className="font-medium">
-                {task.dueDate
-                  ? new Date(task.dueDate).toLocaleDateString("vi-VN")
-                  : "Chưa có"}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-gray-500">Ngày tạo</p>
-              <p className="font-medium">
-                {new Date(task.createdAt).toLocaleDateString("vi-VN")}
-              </p>
-            </div>
-          </div>
-        </div>
-
+        <TaskInfo task={task} />
         {/* comment and file */}
         <TaskCommentsSection
           comments={task.comments ?? []}

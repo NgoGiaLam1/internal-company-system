@@ -32,7 +32,6 @@ export async function POST(
     const body = await req.json();
 
     const content = body.content?.trim();
-    console.log("Received task comment:", id, content);
     if (!content) {
       return NextResponse.json(
         {
