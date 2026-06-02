@@ -1,8 +1,6 @@
 "use client";
 
-import {
-  ShieldCheck,
-} from "lucide-react";
+import { Pencil, Settings, ShieldCheck, Trash2 } from "lucide-react";
 
 import {
   useMemo,
@@ -11,7 +9,9 @@ import {
 
 import HeaderPage from "@/components/ui/HeaderPage";
 import FilterBar from "../ui/filter/FilterBar";
-
+import PermissionsModal from "./PermissionsModal";
+import useRolePermissions from "./useRolePermissions";
+import { ROLE_LABELS } from "./labels";
 
 type Props = {
   roles: any[];
@@ -24,6 +24,29 @@ export default function RolesPageContent({
   const [search, setSearch] =
     useState("");
 
+  // Modal state
+  const [permissionModal, setPermissionModal] =
+    useState(false);
+
+  const [selectedRole, setSelectedRole] =
+    useState<any>(null);
+
+  const [
+    selectedPermissions,
+
+    setSelectedPermissions,
+
+  ] = useState<string[]>([]);
+
+  const {
+    permissions,
+  } = useRolePermissions(
+    selectedRole?.id
+  );
+
+  // =========================
+  // FILTER
+  // =========================
   const filteredRoles =
     useMemo(() => {
 
@@ -39,147 +62,314 @@ export default function RolesPageContent({
 
     }, [roles, search]);
 
+  const onSave = async () => {
+
+    await fetch(
+
+      `/api/roles/${selectedRole.id}/permissions`,
+
+      {
+
+        method: "PUT",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+
+          permissionIds:
+            selectedPermissions,
+
+        }),
+
+      }
+
+    );
+
+    setPermissionModal(
+      false
+    )
+
+  };
+
   return (
-    <div className="space-y-6">
+    <>
+      <div className="space-y-6">
 
-      <HeaderPage
-        icon={
-          <ShieldCheck
-            className="text-blue-600"
-            size={26}
-          />
-        }
-
-        title="Phân quyền hệ thống"
-
-        description="
+        <HeaderPage
+          icon={
+            <ShieldCheck
+              className="text-blue-600"
+              size={26}
+            />
+          }
+          title="Phân quyền hệ thống"
+          description="
           Quản lý vai trò và quyền truy cập
         "
-      />
+        />
 
-      {/* FILTER */}
+        <FilterBar
+          search={{
+            value: search,
 
-      <FilterBar
-        search={{
-          value: search,
+            onChange: (
+              value: string
+            ) =>
+              setSearch(value),
 
-          onChange: (
-            value: string
-          ) =>
-            setSearch(value),
+            placeholder:
+              "Tìm role...",
+          }}
+        />
 
-          placeholder:
-            "Tìm role...",
-        }}
-      />
+        {/* TABLE */}
 
-      {/* GRID */}
+        <div className="bg-white border rounded-xl overflow-hidden">
 
-      <div
-        className="
-          grid grid-cols-1
-          lg:grid-cols-2
-          gap-5
-        "
-      >
+          <table className="w-full text-sm">
 
-        {filteredRoles.map(
-          (role) => (
-            <div
-              key={role.id}
+            <thead className="bg-gray-50 text-gray-600">
 
-              className="
-                bg-white border
-                rounded-2xl p-5
-                shadow-sm
-              "
-            >
+              <tr>
 
-              <div
-                className="
-                  flex items-center
-                  justify-between
-                  mb-4
-                "
-              >
+                <th className="text-left p-4">
+                  Chức vụ
+                </th>
 
-                <div>
+                <th className="text-left p-4">
+                  Mô tả
+                </th>
 
-                  <h3
-                    className="
-                      text-lg font-semibold
-                      text-gray-800
-                    "
-                  >
-                    {role.name}
-                  </h3>
+                <th className="text-left p-4">
+                  Số quyền
+                </th>
+                
+                <th className="text-left p-4">
+                  Số nhân viên
+                </th>
 
-                  <p
-                    className="
-                      text-sm text-gray-500
-                    "
-                  >
-                    {
-                      role.employees
-                        ?.length
-                    }{" "}
-                    nhân viên
-                  </p>
+                <th className="text-left p-4">
+                  Hành động
+                </th>
 
-                </div>
+              </tr>
 
-                <div
-                  className="
-                    w-12 h-12
-                    rounded-xl
-                    bg-blue-100
-                    flex items-center
-                    justify-center
-                  "
-                >
+            </thead>
 
-                  <ShieldCheck
-                    className="text-blue-600"
-                    size={22}
-                  />
+            <tbody>
 
-                </div>
+              {
+                filteredRoles.map(
+                  (role: any) => (
 
-              </div>
-
-              {/* Permissions */}
-
-              <div className="flex flex-wrap gap-2">
-
-                {role.rolePermissions.map(
-                  (rp: any) => (
-                    <span
-                      key={rp.id}
-
-                      className="
-                        px-3 py-1
-                        rounded-full
-                        bg-gray-100
-                        text-gray-700
-                        text-xs
-                      "
+                    <tr
+                      key={role.id}
+                      className="border-t"
                     >
-                      {
-                        rp.permission
-                          .name
-                      }
-                    </span>
+
+                      <td className="p-4 font-medium">
+
+                        {
+                          ROLE_LABELS[
+                          role.name
+                          ] || role.name
+                        }
+
+                      </td>
+
+                      <td className="p-4">
+
+                        {
+                          role.description ||
+                          "Không có"
+                        }
+
+                      </td>
+
+                      <td className="p-4">
+
+                        <span
+                          className="
+                    px-3 py-1
+                    rounded-full
+                    text-xs
+                    font-medium
+                    bg-blue-100
+                    text-blue-700
+                  "
+                        >
+
+                          {
+                            role._count.rolePermissions
+                          } quyền
+
+                        </span>
+
+                      </td>
+
+                      <td className="p-4">
+
+                        <span
+                          className="
+                    px-3 py-1
+                    rounded-full
+                    text-xs
+                    font-medium
+                    bg-blue-100
+                    text-blue-700
+                  "
+                        >
+
+                          {
+                            role._count.employees
+                          } nhân viên
+
+                        </span>
+
+                      </td>
+
+                      <td className="p-4">
+
+                        <div className="flex items-center gap-2">
+
+                          {/* Edit */}
+
+                          <button
+                            className="
+        p-2
+        rounded-lg
+        border
+        hover:bg-blue-50
+        transition
+      "
+                          >
+
+                            <Pencil size={16} />
+
+                          </button>
+
+                          {/* Permissions / Settings */}
+                          <button
+                            className="
+    p-2
+    rounded-lg
+    border
+    hover:bg-gray-100
+    transition
+  "
+
+                            onClick={() => {
+
+                              setSelectedRole(
+                                role
+                              );
+
+                              setSelectedPermissions(
+                                role.permissions || []
+                              );
+
+                              setPermissionModal(
+                                true
+                              );
+
+                            }}
+                          >
+
+                            <Settings size={16} />
+
+                          </button>
+
+                          {/* Delete */}
+
+                          <button
+                            className="
+        p-2
+        rounded-lg
+        border
+        hover:bg-red-50
+        text-red-600
+        transition
+      "
+                          >
+
+                            <Trash2 size={16} />
+
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
                   )
-                )}
+                )
+              }
 
-              </div>
+              {
+                filteredRoles.length === 0 && (
 
-            </div>
-          )
-        )}
+                  <tr>
+
+                    <td
+                      colSpan={4}
+                      className="
+                text-center
+                py-10
+                text-gray-500
+              "
+                    >
+
+                      Không có role
+
+                    </td>
+
+                  </tr>
+
+                )
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </div>
+      <PermissionsModal
 
-    </div>
+        open={
+          permissionModal
+        }
+
+        role={
+          selectedRole
+        }
+
+        permissions={
+          permissions
+        }
+
+        selectedPermissions={
+          selectedPermissions
+        }
+
+        setSelectedPermissions={
+          setSelectedPermissions
+        }
+
+        onClose={() =>
+          setPermissionModal(
+            false
+          )
+        }
+
+        onSave={onSave}
+
+      />
+    </>
   );
 }

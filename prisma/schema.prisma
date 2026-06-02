@@ -105,6 +105,19 @@ model TblLeaveRequest {
   employee   TblEmployee @relation("EmployeeLeaveRequests", fields: [employeeId], references: [id])
 }
 
+model TblModule {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  href        String   @unique
+  icon        String
+  position    Int
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  permissions TblPermission[]
+}
+
 model TblRole {
   id              String              @id @default(uuid())
   name            String              @unique
@@ -117,10 +130,14 @@ model TblRole {
 
 model TblPermission {
   id              String              @id @default(uuid())
-  name            String              @unique
+  name            String              
   description     String?
   createdAt       DateTime            @default(now())
   rolePermissions TblRolePermission[]
+  moduleId        String
+  module          TblModule          @relation(fields: [moduleId], references: [id])
+
+  @@unique([moduleId, name])
 }
 
 model TblRolePermission {
@@ -128,8 +145,8 @@ model TblRolePermission {
   roleId       String
   permissionId String
   createdAt    DateTime      @default(now())
-  permission   TblPermission @relation(fields: [permissionId], references: [id])
-  role         TblRole       @relation(fields: [roleId], references: [id])
+  permission   TblPermission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         TblRole       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@unique([roleId, permissionId])
 }

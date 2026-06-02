@@ -1,10 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { seedPermissions } from "./permission.seed";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Bắt đầu seed dữ liệu...");
+  {/*
+    console.log("🌱 Bắt đầu seed dữ liệu...");
 
   // ======================
   // PASSWORD MẶC ĐỊNH
@@ -436,6 +438,8 @@ async function main() {
   });
 
   console.log("✅ Seed dữ liệu thành công");
+    */}
+    await seedPermissions();
 }
 
 main()
