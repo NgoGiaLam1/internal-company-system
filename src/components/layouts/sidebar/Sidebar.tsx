@@ -16,7 +16,9 @@ import {
 } from "./iconMap";
 
 import useSidebar
-from "./useSidebar";
+  from "./useSidebar";
+import usePermission from "../usePermission";
+import SidebarSkeleton from "./SidebarSkeleton";
 
 export default function Sidebar({
 
@@ -26,12 +28,12 @@ export default function Sidebar({
 
 }: {
 
-  collapsed:boolean;
+  collapsed: boolean;
 
   setCollapsed:
   (
-    value:boolean
-  )=>void;
+    value: boolean
+  ) => void;
 
 }) {
 
@@ -41,8 +43,48 @@ export default function Sidebar({
   const {
 
     modules,
+    loading,
 
   } = useSidebar();
+
+  const {
+
+    loading: permissionLoading,
+
+    hasPermission,
+
+  } = usePermission();
+
+  const visibleModules =
+
+    modules.filter(
+      module =>
+
+        hasPermission(
+          module.name,
+          "VIEW",
+        )
+    );
+
+  if (
+    loading ||
+
+    permissionLoading
+  ) {
+
+    return (
+
+      <SidebarSkeleton
+
+        collapsed={
+          collapsed
+        }
+
+      />
+
+    );
+
+  }
 
   return (
 
@@ -59,8 +101,7 @@ export default function Sidebar({
 
         relative
 
-        ${
-          collapsed
+        ${collapsed
 
           ? "w-20"
 
@@ -102,17 +143,17 @@ export default function Sidebar({
 
           collapsed
 
-          ?
+            ?
 
-          <ChevronRight
-            size={18}
-          />
+            <ChevronRight
+              size={18}
+            />
 
-          :
+            :
 
-          <ChevronLeft
-            size={18}
-          />
+            <ChevronLeft
+              size={18}
+            />
 
         }
 
@@ -128,47 +169,47 @@ export default function Sidebar({
 
         {
 
-          modules.map(
+          visibleModules.map(
             (
-              item:any
+              item: any
             ) => {
 
-            const Icon =
-              iconMap[
+              const Icon =
+                iconMap[
                 item.icon
-              ] ||
-              iconMap.Settings;
+                ] ||
+                iconMap.Settings;
 
-            const active =
+              const active =
 
-              item.href === "/"
+                item.href === "/"
 
-              ?
+                  ?
 
-              pathname === "/"
+                  pathname === "/"
 
-              :
+                  :
 
-              pathname ===
-              item.href ||
+                  pathname ===
+                  item.href ||
 
-              pathname.startsWith(
-                item.href + "/"
-              );
+                  pathname.startsWith(
+                    item.href + "/"
+                  );
 
-            return (
+              return (
 
-              <Link
+                <Link
 
-                key={
-                  item.id
-                }
+                  key={
+                    item.id
+                  }
 
-                href={
-                  item.href
-                }
+                  href={
+                    item.href
+                  }
 
-                className={`
+                  className={`
                   flex
 
                   items-center
@@ -185,20 +226,19 @@ export default function Sidebar({
 
                   transition
 
-                  ${
-                    active
+                  ${active
 
-                    ?
+                      ?
 
-                    `
+                      `
                     bg-blue-100
                     text-blue-600
                     font-medium
                     `
 
-                    :
+                      :
 
-                    `
+                      `
                     text-gray-600
 
                     hover:bg-blue-50
@@ -206,33 +246,33 @@ export default function Sidebar({
                     hover:text-blue-600
                     `
 
-                  }
+                    }
 
                 `}
 
-              >
+                >
 
-                <Icon
-                  size={20}
-                />
+                  <Icon
+                    size={20}
+                  />
 
-                {
+                  {
 
-                  !collapsed &&
+                    !collapsed &&
 
-                  <span>
+                    <span>
 
-                    {item.name}
+                      {item.name}
 
-                  </span>
+                    </span>
 
-                }
+                  }
 
-              </Link>
+                </Link>
 
-            );
+              );
 
-          })
+            })
 
         }
 
