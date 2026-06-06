@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/ui/Modal";
 import { useToast } from "../providers/toast-provider";
-
+import { sendNotification } from "@/lib/notification";
+import { useSession } from "next-auth/react";
 
 export default function TaskModal({
   isOpen,
@@ -19,9 +20,8 @@ export default function TaskModal({
 }) {
   const router = useRouter();
   const { showToast } = useToast();
-
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
-
 
   const [form, setForm] = useState({
     title: "",
@@ -45,36 +45,108 @@ export default function TaskModal({
 
 
   const handleSubmit = async () => {
+
     try {
+
       setLoading(true);
 
-      const res = await fetch(`/api/projects/${projectId}/tasks`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+      const res =
+        await fetch(
+          `/api/projects/${projectId}/tasks`,
+          {
+            method: "POST",
 
-      const data = await res.json();
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify(
+              form
+            )
+          }
+        );
+
+      const data =
+        await res.json();
 
       if (!res.ok) {
-        showToast(data.message, "error");
+
+        showToast(
+          data.message,
+          "error"
+        );
+
         return;
       }
 
-      showToast("Tạo công việc thành công");
+      /*
+        TEST NOTIFICATION
+      */
+
+      if (form.assigneeId) {
+
+        try {
+
+          await sendNotification({
+
+            title: "Task mới",
+
+            content:
+              `Bạn được giao: ${form.title}`,
+
+            type: "TASK",
+            senderId: session?.user?.id,
+            receiverIds: [
+              form.assigneeId
+            ]
+
+          });
+
+        }
+
+        catch (err) {
+
+          console.log(
+            "notification fail",
+            err
+          );
+
+        }
+
+      }
+
+      showToast(
+        "Tạo công việc thành công"
+      );
 
       setTimeout(() => {
+
         onClose();
+
         router.refresh();
-        window.location.reload();
+
+        //window.location.reload();
+
       }, 1000);
-    } catch (error) {
+
+    }
+
+    catch (error) {
+
       console.log(error);
-      showToast("Có lỗi xảy ra", "error");
-    } finally {
+
+      showToast(
+        "Có lỗi xảy ra",
+        "error"
+      );
+
+    }
+
+    finally {
+
       setLoading(false);
+
     }
   };
 
@@ -132,7 +204,7 @@ export default function TaskModal({
             </option>
           ))}
         </select>
-        
+
         <input
           type="date"
           name="dueDate"

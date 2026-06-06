@@ -28,6 +28,64 @@ model TblEmployee {
   tasks           TblTask[]         @relation("TaskAssignee")
   projects        TblProject[]      @relation("ProjectMembers")
   comments        TblTaskComment[]
+
+  sentNotifications    TblNotification[]          @relation("NotificationSender")
+  notifications        TblNotificationRecipient[]
+  pushSubscriptions TblPushSubscription[]
+}
+
+model TblNotification {
+  id      String           @id @default(uuid())
+  title   String
+  content String?
+  type    NotificationType @default(GENERAL)
+
+  senderId String?
+  sender   TblEmployee? @relation("NotificationSender", fields: [senderId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  recipients TblNotificationRecipient[]
+
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+model TblNotificationRecipient {
+  id String @id @default(uuid())
+
+  notificationId String
+  employeeId     String
+
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  notification TblNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  employee     TblEmployee     @relation(fields: [employeeId], references: [id])
+
+  @@unique([notificationId, employeeId])
+  @@index([employeeId])
+  @@index([employeeId, isRead])
+  @@index([notificationId])
+}
+
+model TblPushSubscription {
+  id String @id @default(uuid())
+
+  employeeId String
+
+  endpoint String @unique @db.Text
+
+  p256dh String @db.Text
+
+  auth String @db.Text
+
+  createdAt DateTime @default(now())
+
+  employee TblEmployee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
 }
 
 model TblDepartment {
@@ -130,12 +188,12 @@ model TblRole {
 
 model TblPermission {
   id              String              @id @default(uuid())
-  name            String              
+  name            String
   description     String?
   createdAt       DateTime            @default(now())
   rolePermissions TblRolePermission[]
   moduleId        String
-  module          TblModule          @relation(fields: [moduleId], references: [id])
+  module          TblModule           @relation(fields: [moduleId], references: [id])
 
   @@unique([moduleId, name])
 }
@@ -180,4 +238,13 @@ enum LeaveStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum NotificationType {
+  SYSTEM
+  GENERAL
+  TASK
+  PROJECT
+  LEAVE
+  COMMENT
 }

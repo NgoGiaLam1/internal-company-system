@@ -1,5 +1,4 @@
 import AppLayout from "@/components/layouts/AppLayout";
-import { getCurrentUser } from "@/lib/auth";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -25,13 +24,6 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-
-  const user =
-    await getCurrentUser();
-
-  if (
-    user?.id
-  )
 
     return (
 
