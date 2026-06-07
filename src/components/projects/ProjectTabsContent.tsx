@@ -47,21 +47,20 @@ export default function ProjectTabsContent({
             {activeTab === "tasks" && (
 
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div>
 
+                        <ProjectSettingsSection
+                            project={project}
+                        />
+
+                    </div>
+                    
                     <div className="xl:col-span-2">
 
                         <TaskSection
                             projectId={project.id}
                             tasks={project.tasks}
                             members={project.members}
-                        />
-
-                    </div>
-
-                    <div>
-
-                        <ProjectSettingsSection
-                            project={project}
                         />
 
                     </div>

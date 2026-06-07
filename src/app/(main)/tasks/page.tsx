@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import TaskTable from "@/components/tasks/TaskTable";
 import HeaderPage from "@/components/ui/HeaderPage";
 import TasksClientPage from "@/components/tasks/TasksClientPage";
 

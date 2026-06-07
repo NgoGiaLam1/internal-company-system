@@ -56,14 +56,14 @@ export default function TasksClientPage({
         statusFilter === "ALL"
           ? true
           : task.status ===
-            statusFilter;
+          statusFilter;
 
       // PRIORITY
       const matchPriority =
         priorityFilter === "ALL"
           ? true
           : task.priority ===
-            priorityFilter;
+          priorityFilter;
 
       // DATE RANGE
       let matchDate = true;
@@ -84,7 +84,7 @@ export default function TasksClientPage({
         matchDate =
           matchDate &&
           new Date(task.dueDate) <=
-            new Date(dateRange.to);
+          new Date(dateRange.to);
       }
 
       return (
@@ -140,15 +140,15 @@ export default function TasksClientPage({
                 value: "ALL",
               },
               {
-                label: "TODO",
+                label: "Chưa bắt đầu",
                 value: "TODO",
               },
               {
-                label: "IN PROGRESS",
+                label: "Đang thực hiện",
                 value: "IN_PROGRESS",
               },
               {
-                label: "DONE",
+                label: "Hoàn thành",
                 value: "DONE",
               },
             ],
@@ -166,15 +166,15 @@ export default function TasksClientPage({
                 value: "ALL",
               },
               {
-                label: "LOW",
+                label: "Thấp",
                 value: "LOW",
               },
               {
-                label: "MEDIUM",
+                label: "Trung bình",
                 value: "MEDIUM",
               },
               {
-                label: "HIGH",
+                label: "Cao",
                 value: "HIGH",
               },
             ],

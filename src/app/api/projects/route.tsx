@@ -27,24 +27,65 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+
     const body = await req.json();
 
-    const project = await prisma.tblProject.create({
-      data: {
-        name: body.name,
-        description: body.description,
-        status: body.status,
-        leaderId: body.leaderId || null,
-      },
-    });
+    const project =
+      await prisma.tblProject.create({
 
-    return NextResponse.json(project);
-  } catch (error) {
-    console.log("CREATE PROJECT ERROR:", error);
+        data: {
+
+          name: body.name,
+
+          description:
+            body.description,
+
+          status:
+            body.status,
+
+          leaderId:
+            body.leaderId || null,
+
+          members: {
+
+            connect:
+              body.memberIds?.map(
+                (id: string) => ({
+                  id
+                })
+              ) || []
+
+          }
+
+        },
+
+        include: {
+          members: true,
+          leader: true
+        }
+
+      });
 
     return NextResponse.json(
-      { message: "Tạo dự án thất bại" },
-      { status: 500 }
+      project
     );
+
+  } catch (error) {
+
+    console.log(
+      "CREATE PROJECT ERROR:",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        message:
+          "Tạo dự án thất bại"
+      },
+      {
+        status: 500
+      }
+    );
+
   }
 }

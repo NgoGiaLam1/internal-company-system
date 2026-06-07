@@ -116,7 +116,7 @@ export default function TaskSection({
   // };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border p-6">
+    <div className="bg-white rounded-2xl shadow-sm border p-6 max-h-124 overflow-y-auto ">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">

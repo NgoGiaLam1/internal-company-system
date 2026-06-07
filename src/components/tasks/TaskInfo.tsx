@@ -1,12 +1,61 @@
 'use client';
-import { useState } from "react";
+import { useRef, useState } from "react";
 import SubmitTaskModal from "./SubmitTaskModal";
-import { FileText } from "lucide-react";
 import { getFileIcon } from "../ui/FileIcon";
+import { useRouter } from "next/navigation";
 
 export default function TaskInfo({ task }: { task: any }) {
     const [openSubmit, setOpenSubmit] = useState(false);
+    const dateRef =
+        useRef<HTMLInputElement>(
+            null
+        );
+    const [updating, setUpdating] =
+        useState(false);
 
+    const router = useRouter();
+    const updateDeadline =
+        async (
+            value: string
+        ) => {
+
+            try {
+
+                setUpdating(true);
+
+                await fetch(
+                    `/api/tasks/${task.id}/dealine`,
+                    {
+
+                        method: "PATCH",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            dueDate: value
+
+                        })
+
+                    }
+                );
+
+                router.refresh();
+
+            } catch (err) {
+
+                console.log(err);
+
+            } finally {
+
+                setUpdating(false);
+
+            }
+
+        };
     return (
         <>
             <div className="bg-white rounded-xl shadow border p-6">
@@ -126,14 +175,13 @@ export default function TaskInfo({ task }: { task: any }) {
                     {/* DEADLINE */}
 
                     <div className="
-      flex
-      items-start
-      justify-between
-      gap-4
-
-      pb-4
-      border-b
-    ">
+ flex
+ items-center
+ justify-between
+ gap-4
+ pb-4
+ border-b
+">
 
                         <span className="text-gray-500">
 
@@ -141,20 +189,109 @@ export default function TaskInfo({ task }: { task: any }) {
 
                         </span>
 
-                        <span className="
-        font-medium
-        text-right
-      ">
+                        <div className="
+  flex
+  items-center
+  gap-3
+ ">
 
-                            {task.dueDate
-                                ? new Date(
+                            <span className="
+   font-medium
+   text-right
+  ">
+
+                                {
                                     task.dueDate
-                                ).toLocaleDateString(
-                                    "vi-VN"
-                                )
-                                : "Chưa có"}
 
-                        </span>
+                                        ?
+
+                                        new Date(
+                                            task.dueDate
+                                        ).toLocaleDateString(
+                                            "vi-VN"
+                                        )
+
+                                        :
+
+                                        "Chưa có"
+
+                                }
+
+                            </span>
+
+                            <div className="
+ relative
+ flex
+ items-center
+">
+
+                                <button
+                                    type="button"
+
+                                    className="
+  p-2
+  rounded-lg
+  hover:bg-gray-100
+  transition
+  "
+
+                                    onClick={() => {
+
+                                        dateRef.current
+                                            ?.showPicker?.();
+
+                                    }}
+                                >
+
+                                    📅
+
+                                </button>
+
+                                <input
+
+                                    ref={dateRef}
+
+                                    type="date"
+
+                                    className="
+  absolute
+  opacity-0
+  pointer-events-none
+  "
+
+                                    disabled={updating}
+
+                                    defaultValue={
+                                        task.dueDate
+                                            ?
+
+                                            new Date(
+                                                task.dueDate
+                                            )
+                                                .toISOString()
+                                                .split("T")[0]
+
+                                            :
+
+                                            ""
+                                    }
+
+                                    onChange={e => {
+
+                                        if (
+                                            !e.target.value
+                                        ) return;
+
+                                        updateDeadline(
+                                            e.target.value
+                                        );
+
+                                    }}
+
+                                />
+
+                            </div>
+                        </div>
 
                     </div>
 
@@ -304,9 +441,9 @@ export default function TaskInfo({ task }: { task: any }) {
         text-right
 
         whitespace-pre-wrap
-        break-words
+        wrap-break-word
 
-        max-w-[220px]
+        max-w-55
       ">
 
                                     {
@@ -344,7 +481,7 @@ export default function TaskInfo({ task }: { task: any }) {
                                             target="_blank"
 
                                             className="
-  max-w-[220px]
+  max-w-55
 
   px-3
   py-2

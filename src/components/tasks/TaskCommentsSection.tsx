@@ -159,6 +159,7 @@ export default function TaskCommentsSection({
       space-y-5
 
       max-h-80
+      min-h-68
       overflow-y-auto
 
       custom-scrollbar

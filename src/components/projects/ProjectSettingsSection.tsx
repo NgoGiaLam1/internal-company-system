@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
-  Pencil,
   Trash2,
   Save,
 } from "lucide-react";
@@ -93,33 +92,224 @@ export default function ProjectSettingsSection({
       }
     };
 
+  const totalTasks = project.tasks.length;
+
+  const completedTasks = project.tasks.filter(
+    (task) => task.status === "DONE"
+  ).length;
+
+  const overdueTasks = project.tasks.filter(
+    (task) =>
+      task.status !== "DONE" &&
+      task.dueDate &&
+      new Date(task.dueDate) < new Date()
+  ).length;
+
+  const progress =
+    totalTasks === 0
+      ? 0
+      : Math.round(
+        (completedTasks / totalTasks) * 100
+      );
+
+  // =========================
+  // PROJECT STATUS
+  // =========================
+
+  const getStatusStyle = () => {
+    switch (project.status) {
+      case "COMPLETED":
+        return "bg-green-100 text-green-700";
+
+      case "IN_PROGRESS":
+        return "bg-blue-100 text-blue-700";
+
+      case "ON_HOLD":
+        return "bg-yellow-100 text-yellow-700";
+
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const getStatusText = () => {
+    switch (project.status) {
+      case "COMPLETED":
+        return "Hoàn thành";
+
+      case "IN_PROGRESS":
+        return "Đang thực hiện";
+
+      case "ON_HOLD":
+        return "Tạm dừng";
+
+      default:
+        return "Lên kế hoạch";
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl border shadow-sm p-6">
 
       {/* Header */}
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b mb-4">
 
-        <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-          <Pencil
-            size={18}
-            className="text-blue-600"
-          />
-        </div>
+        <h1 className="text-2xl font-bold truncate">
 
-        <div>
-          <h2 className="text-lg font-semibold text-gray-800">
-            Cài đặt dự án
-          </h2>
+          {project.name}
 
-          <p className="text-sm text-gray-500">
-            Chỉnh sửa thông tin chung
-          </p>
+        </h1>
+
+        <div className="flex items-center gap-3">
+          <div >
+            <div className="min-w-0 mb-1">
+
+              <div className="flex flex-wrap items-center gap-3">
+
+                <span className={`px-3 py-1 rounded-full text-sm ${getStatusStyle()}`}>
+
+                  {getStatusText()}
+
+                </span>
+
+
+              </div>
+
+            </div>
+            <div className="flex flex-wrap gap-5 text-sm shrink-0">
+
+              <div>
+
+                <p className="text-gray-400">
+
+                  Leader
+
+                </p>
+
+                <p className="font-medium">
+
+                  {
+                    project.leader
+                      ?.fullName ||
+                    "Chưa có"
+                  }
+
+                </p>
+
+              </div>
+
+              <div>
+
+                <p className="text-gray-400">
+
+                  Ngày tạo
+
+                </p>
+
+                <p className="font-medium">
+
+                  {
+                    new Date(
+                      project.createdAt
+                    ).toLocaleDateString(
+                      "vi-VN"
+                    )
+                  }
+
+                </p>
+
+              </div>
+
+            </div>
+          </div>
+          <div className="">
+
+            <div className="flex items-center justify-between text-sm mb-2">
+
+              <span className="text-gray-500">
+
+                Tiến độ dự án
+
+              </span>
+
+              <span className="font-medium">
+
+                {progress}%
+
+              </span>
+
+            </div>
+
+            <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+
+              <div
+                className="h-2 rounded-full bg-blue-600 transition-all"
+                style={{
+                  width: `${progress}%`
+                }}
+              />
+
+            </div>
+
+            <div className="flex flex-wrap gap-5 mt-3 text-sm">
+
+              <div>
+
+                <span className="text-gray-400">
+
+                  Tổng task
+
+                </span>
+
+                <p className="font-medium">
+
+                  {totalTasks}
+
+                </p>
+
+              </div>
+
+              <div>
+
+                <span className="text-gray-400">
+
+                  Hoàn thành
+
+                </span>
+
+                <p className="font-medium text-green-600">
+
+                  {completedTasks}
+
+                </p>
+
+              </div>
+
+              <div>
+
+                <span className="text-gray-400">
+
+                  Quá hạn
+
+                </span>
+
+                <p className="font-medium text-red-600">
+
+                  {overdueTasks}
+
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
         </div>
 
       </div>
 
       {/* Form */}
-      <div className="space-y-4">
+      <div className="space-y-4 h-60 overflow-y-auto pr-2">
 
         <div>
           <label className="text-sm font-medium text-gray-700 block mb-2">

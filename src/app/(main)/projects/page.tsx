@@ -253,9 +253,13 @@ export default function ProjectsPage() {
             {row.name}
           </p>
 
-          <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-            {row.description ||
-              "Không có mô tả"}
+          <p
+            className="text-sm text-gray-500 mt-1 text-ellipsis overflow-hidden whitespace-nowrap max-w-[16vw]"
+            title={row.description || "Không có mô tả"}
+          >
+
+            {row.description || "Không có mô tả"}
+
           </p>
         </div>
       ),
@@ -396,31 +400,78 @@ export default function ProjectsPage() {
 
           {row.members?.length > 0 ? (
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex items-center">
 
               {row.members
                 .slice(0, 3)
-                .map((member: any) => (
+                .map((member: any, index: number) => (
+
                   <div
                     key={member.id}
-                    className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium"
+                    title={member.fullName}
+                    className="
+     h-9
+     w-9
+     rounded-full
+     bg-slate-200
+     flex
+     items-center
+     justify-center
+     font-medium
+     border-2
+     border-white
+     -ml-2
+     first:ml-0
+     "
+                    style={{
+                      zIndex: 10 - index
+                    }}
                   >
-                    {member.fullName}
+
+                    {
+                      member.fullName
+                        .charAt(0)
+                        .toUpperCase()
+                    }
+
                   </div>
+
                 ))}
 
               {row.members.length > 3 && (
-                <div className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+
+                <div className="
+    h-9
+    w-9
+    rounded-full
+    bg-blue-100
+    text-blue-700
+    flex
+    items-center
+    justify-center
+    text-xs
+    font-medium
+    border-2
+    border-white
+    -ml-2
+    ">
+
                   +{row.members.length - 3}
+
                 </div>
+
               )}
 
             </div>
 
           ) : (
+
             <span className="text-sm text-gray-400">
+
               Chưa có thành viên
+
             </span>
+
           )}
 
         </div>

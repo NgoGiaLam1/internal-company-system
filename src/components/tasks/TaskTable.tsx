@@ -33,6 +33,34 @@ function getStatusColor(status: string) {
       return "bg-gray-100 text-gray-700";
   }
 }
+const getStatusText = (status: string) => {
+  switch (status) {
+    case "DONE":
+      return "Hoàn thành";
+
+    case "IN_PROGRESS":
+      return "Đang thực hiện";
+
+    case "TODO":
+      return "Chưa bắt đầu";
+
+    default:
+      return "Lên kế hoạch";
+  }
+};
+
+const getPriorityText = (priority: string) => {
+  switch (priority) {
+    case "HIGH":
+      return "Cao";
+    case "MEDIUM":
+      return "Trung bình";
+    case "LOW":
+      return "Thấp";
+    default:
+      return "Không xác định";
+  }
+};
 
 export default function TaskTable({
   tasks,
@@ -157,61 +185,36 @@ export default function TaskTable({
 
                   <span
                     className={`
-                      px-2 py-1
-                      rounded-full
-                      text-xs font-medium
-                      ${getPriorityColor(
-                        task.priority
-                      )}
-                    `}
+                        px-2 py-1
+                        rounded-full
+                        text-xs font-medium
+                        ${getPriorityColor(
+                      task.priority
+                    )}
+                      `}
                   >
-                    {task.priority}
+                    {getPriorityText(task.priority)}
                   </span>
 
                 </td>
 
                 {/* Status */}
-                <td
-                  className="p-3"
-                  onClick={(e) =>
-                    e.stopPropagation()
-                  }
-                >
+                <td className="p-3">
 
-                  <select
-                    value={task.status}
-                    disabled={
-                      role === "EMPLOYEE"
-                    }
-                    onChange={(e) =>
-                      handleStatusChange(
-                        task.id,
-                        e.target.value
-                      )
-                    }
+                  <span
                     className={`
-                      border rounded
-                      px-2 py-1 text-sm
+                      px-2 py-1
+                      rounded-full
+                      text-xs font-medium
                       ${getStatusColor(
-                        task.status
-                      )}
+                      task.status
+                    )}
                     `}
                   >
-                    <option value="TODO">
-                      TODO
-                    </option>
-
-                    <option value="IN_PROGRESS">
-                      IN_PROGRESS
-                    </option>
-
-                    <option value="DONE">
-                      DONE
-                    </option>
-                  </select>
+                    {getStatusText(task.status)}
+                  </span>
 
                 </td>
-
                 {/* Deadline */}
                 <td className="p-3">
 
