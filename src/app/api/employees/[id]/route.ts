@@ -26,6 +26,7 @@ export async function PATCH(
       department,
       position,
       roleId,
+      status,
     } = body;
 
     const updateData: any = {
@@ -34,6 +35,7 @@ export async function PATCH(
       department,
       position,
       roleId,
+      status
     };
 
     // Nếu có password mới
