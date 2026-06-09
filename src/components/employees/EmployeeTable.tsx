@@ -42,6 +42,15 @@ export default function EmployeeTable({
             showToast("Có lỗi xảy ra", "error");
         }
     };
+
+    const getStatusText = (status: string) => {
+        switch (status) {
+            case "ACTIVE": return "Đang làm việc";
+            case "INACTIVE": return "Nghỉ việc";
+            default: return status;
+        }
+    };
+
     return (
         <>
             <div className="bg-white rounded-xl shadow border overflow-hidden">
@@ -58,13 +67,7 @@ export default function EmployeeTable({
                                 Chức vụ
                             </th>
                             <th className="px-6 py-4">
-                                Role
-                            </th>
-                            <th className="px-6 py-4">
                                 Trạng thái
-                            </th>
-                            <th className="px-6 py-4">
-                                Thao tác
                             </th>
                         </tr>
                     </thead>
@@ -72,8 +75,21 @@ export default function EmployeeTable({
                         {employees.map((employee) => (
                             <tr
                                 key={employee.id}
-                                className="border-b text-sm hover:bg-gray-50"
-                            >
+
+                                onClick={() =>
+                                    router.push(
+                                        `/employees/${employee.id}`
+                                    )
+                                }
+
+                                className="
+                                    border-b
+                                    text-sm
+                                    hover:bg-gray-50
+                                    cursor-pointer
+                                    transition
+                                    "
+                                                                >
                                 {/* User */}
                                 <td className="px-6 py-4">
                                     <div>
@@ -93,18 +109,6 @@ export default function EmployeeTable({
                                 <td className="px-6 py-4 text-gray-600">
                                     {employee.position}
                                 </td>
-                                {/* Role */}
-                                <td className="px-6 py-4">
-                                    <span
-                                        className="
-                                    px-2 py-1 rounded-full
-                                    text-xs font-medium
-                                    bg-blue-100 text-blue-600
-                                    "
-                                    >
-                                        {employee.role.name}
-                                    </span>
-                                </td>
                                 {/* Status */}
                                 <td className="px-6 py-4">
                                     <span
@@ -116,34 +120,8 @@ export default function EmployeeTable({
                                             }
                                         `}
                                     >
-                                        {employee.status}
+                                        {getStatusText(employee.status)}
                                     </span>
-                                </td>
-
-                                {/* Actions */}
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        {/* Edit */}
-                                        <button
-                                            onClick={() =>
-                                                setSelectedEmployee(employee)
-                                            }
-                                            className="
-                                            text-blue-600
-                                            hover:underline
-                                            text-sm">
-                                            Chỉnh sửa
-                                        </button>
-                                        {/* Delete */}
-                                        <button
-                                            onClick={() => setDeleteId(employee.id)}
-                                            className="
-                                            text-red-600
-                                            hover:underline
-                                            text-sm">
-                                            Xóa
-                                        </button>
-                                    </div>
                                 </td>
                             </tr>
                         ))}
