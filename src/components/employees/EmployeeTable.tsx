@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import ConfirmDeleteModal from "./ConfirmDeleteModal";
-
 
 import EditEmployeeModal
     from "./EditEmployeeModal";
-import { useToast } from "@/components/providers/toast-provider";
 type EmployeeTableProps = {
     employees: any[];
     roles: any[];
@@ -17,31 +14,9 @@ export default function EmployeeTable({
     employees,
     roles,
 }: EmployeeTableProps) {
-
-    const { showToast } = useToast();
-    const [deleteId, setDeleteId] = useState<string | null>(null);
     const [selectedEmployee, setSelectedEmployee] =
         useState<any>(null);
     const router = useRouter();
-    const handleDelete = async () => {
-        if (!deleteId) return;
-        try {
-            const res = await fetch(`/api/employees/${deleteId}`, {
-                method: "DELETE",
-            });
-            const data = await res.json();
-            if (!res.ok) {
-                showToast(data.message, "error");
-                return;
-            }
-            setDeleteId(null);
-            showToast("Xóa nhân viên thành công", "success");
-            router.refresh();
-        } catch (error) {
-            console.log(error);
-            showToast("Có lỗi xảy ra", "error");
-        }
-    };
 
     const getStatusText = (status: string) => {
         switch (status) {
@@ -59,6 +34,9 @@ export default function EmployeeTable({
                         <tr className="text-left text-sm text-gray-600">
                             <th className="px-6 py-4">
                                 Nhân viên
+                            </th>
+                            <th className="px-6 py-4">
+                                Số điện thoại
                             </th>
                             <th className="px-6 py-4">
                                 Phòng ban
@@ -101,9 +79,13 @@ export default function EmployeeTable({
                                         </p>
                                     </div>
                                 </td>
+                                {/* Phone */}
+                                <td className="px-6 py-4 text-gray-600">
+                                    {employee.phone}
+                                </td>
                                 {/* Department */}
                                 <td className="px-6 py-4 text-gray-600">
-                                    {employee.department}
+                                    {employee.department.name}
                                 </td>
                                 {/* Position */}
                                 <td className="px-6 py-4 text-gray-600">
@@ -142,12 +124,6 @@ export default function EmployeeTable({
                     />
                 )
             }
-            <ConfirmDeleteModal
-                open={!!deleteId}
-                onClose={() => setDeleteId(null)}
-                onConfirm={handleDelete}
-                title="Bạn có chắc muốn xóa nhân viên này?"
-            />
         </>
     );
 }

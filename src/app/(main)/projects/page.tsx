@@ -410,30 +410,39 @@ export default function ProjectsPage() {
                     key={member.id}
                     title={member.fullName}
                     className="
-     h-9
-     w-9
-     rounded-full
-     bg-slate-200
-     flex
-     items-center
-     justify-center
-     font-medium
-     border-2
-     border-white
-     -ml-2
-     first:ml-0
-     "
+    h-9
+    w-9
+    rounded-full
+    overflow-hidden
+    border-2
+    border-white
+    -ml-2
+    first:ml-0
+    bg-slate-200
+    flex
+    items-center
+    justify-center
+    font-medium
+  "
                     style={{
-                      zIndex: 10 - index
+                      zIndex: 10 - index,
                     }}
                   >
-
-                    {
+                    {member.avatarUrl ? (
+                      <img
+                        src={member.avatarUrl}
+                        alt={member.fullName}
+                        className="
+        h-full
+        w-full
+        object-cover
+      "
+                      />
+                    ) : (
                       member.fullName
                         .charAt(0)
                         .toUpperCase()
-                    }
-
+                    )}
                   </div>
 
                 ))}

@@ -1,10 +1,12 @@
 'use client';
 
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 
 export default function SettingsContent() {
-     const [darkMode, setDarkMode] = useState(false);
-      const [emailNotify, setEmailNotify] = useState(true);
+    const [darkMode, setDarkMode] = useState(false);
+    const [emailNotify, setEmailNotify] = useState(true);
+    const { data: session } = useSession();
     return (
         <div className="space-y-6">
 
@@ -16,13 +18,44 @@ export default function SettingsContent() {
                 <h2 className="font-semibold">Thông tin tài khoản</h2>
 
                 <div className="flex items-center gap-4">
-                    <img
-                        src="https://i.pravatar.cc/60"
-                        className="w-12 h-12 rounded-full"
-                    />
+                    <div
+                        title={session?.user?.name.name}
+                        className="
+    h-9
+    w-9
+    rounded-full
+    overflow-hidden
+    border-2
+    border-white
+    -ml-2
+    first:ml-0
+    bg-slate-200
+    flex
+    items-center
+    justify-center
+    font-medium
+  "
+                    >
+                        {session?.user?.image ? (
+                            <img
+                                src={session?.user?.image}
+                                alt={session?.user?.name}
+                                className="
+        h-full
+        w-full
+        object-cover
+      "
+                            />
+                        ) : (
+                            session?.user?.name
+                                .charAt(0)
+                                .toUpperCase()
+                        )}
+                    </div>
+
                     <div>
-                        <p className="font-medium">Admin</p>
-                        <p className="text-sm text-gray-500">admin@gmail.com</p>
+                        <p className="font-medium">{session?.user?.name}</p>
+                        <p className="text-sm text-gray-500">{session?.user?.email}</p>
                     </div>
                 </div>
 

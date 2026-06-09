@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ROLE_LABELS } from "../roles/labels";
+import { ChevronDown } from "lucide-react";
 
 export default function RoleEditor({
 
@@ -87,7 +88,7 @@ export default function RoleEditor({
 
             <p className="text-sm text-gray-400">
 
-                Role
+                Quyền hạn
 
             </p>
 
@@ -99,16 +100,10 @@ export default function RoleEditor({
                     )
                 }
 
-                className="
-    font-medium
-    hover:text-blue-600
-    transition
-    cursor-pointer
-    "
-
-            >
+                className="flex items-center gap-2 font-medium">
 
                 {currentRoleName}
+                <ChevronDown size={16} />
 
             </button>
 
@@ -116,7 +111,7 @@ export default function RoleEditor({
 
                 <div className="
      absolute
-     -top-40
+     -top-6
      left-30
      z-20
      w-64
@@ -219,17 +214,9 @@ export default function RoleEditor({
                         >
 
                             {
-
                                 loading
-
-                                    ?
-
-                                    "..."
-
-                                    :
-
-                                    "Xác nhận"
-
+                                    ? "Đang lưu..."
+                                    : "Xác nhận"
                             }
 
                         </button>

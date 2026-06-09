@@ -40,8 +40,29 @@ export default function CreateEmployeePageContent({
             status: "ACTIVE",
         });
 
-    const handleSubmit = async () => {
+    const validate = () => {
+        if (!form.fullName.trim()) {
+            return "Vui lòng nhập họ tên";
+        }
 
+        if (!form.email.trim()) {
+            return "Vui lòng nhập email";
+        }
+
+        if (!form.password.trim()) {
+            return "Vui lòng nhập mật khẩu";
+        }
+
+        return null;
+    };
+
+    const handleSubmit = async () => {
+        const error = validate();
+
+        if (error) {
+            showToast(error, "error");
+            return;
+        }
         try {
 
             setLoading(true);

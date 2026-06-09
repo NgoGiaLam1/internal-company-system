@@ -11,6 +11,10 @@ import HeaderPage from "@/components/ui/HeaderPage";
 
 import Pagination from "@/components/ui/Pagination";
 import FilterBar from "../ui/filter/FilterBar";
+import DepartmentModal from "./DepartmentModal";
+import DepartmentForm from "./DepartmentForm";
+import { useToast } from "../providers/toast-provider";
+import { useRouter } from "next/navigation";
 
 type Props = {
   departments: any[];
@@ -25,6 +29,195 @@ export default function DepartmentsPageContent({
 
   const [page, setPage] =
     useState(1);
+
+  const [open, setOpen] =
+    useState(false);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [editingDepartment,
+    setEditingDepartment] =
+    useState<any>(null);
+
+  const [form, setForm] =
+    useState({
+      name: "",
+      description: "",
+    });
+
+  const { showToast } = useToast();
+  const router = useRouter();
+
+  const handleCreate = async () => {
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        "/api/departments",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify(form),
+        }
+      );
+
+      const data =
+        await res.json();
+
+      if (!res.ok) {
+        showToast(
+          data.message,
+          "error"
+        );
+
+        return;
+      }
+
+      showToast(
+        "Tạo phòng ban thành công",
+        "success"
+      );
+
+      setOpen(false);
+
+      router.refresh();
+
+    } catch (error) {
+
+      console.error(error);
+
+      showToast(
+        "Có lỗi xảy ra",
+        "error"
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        `/api/departments/${editingDepartment.id}`,
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify(form),
+        }
+      );
+
+      const data =
+        await res.json();
+
+      if (!res.ok) {
+        showToast(
+          data.message,
+          "error"
+        );
+
+        return;
+      }
+
+      showToast(
+        "Cập nhật phòng ban thành công",
+        "success"
+      );
+
+      setOpen(false);
+
+      setEditingDepartment(null);
+
+      router.refresh();
+
+    } catch (error) {
+
+      console.error(error);
+
+      showToast(
+        "Có lỗi xảy ra",
+        "error"
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  };
+
+  const handleDelete = async () => {
+    if (
+      !confirm(
+        "Bạn có chắc muốn xóa phòng ban này?"
+      )
+    ) {
+      return;
+    }
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        `/api/departments/${editingDepartment.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data =
+        await res.json();
+
+      if (!res.ok) {
+        showToast(
+          data.message,
+          "error"
+        );
+        return;
+      }
+
+      showToast(
+        "Xóa phòng ban thành công",
+        "success"
+      );
+
+      setOpen(false);
+
+      setEditingDepartment(
+        null
+      );
+
+      router.refresh();
+
+    } catch (error) {
+
+      console.error(error);
+
+      showToast(
+        "Có lỗi xảy ra",
+        "error"
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  };
 
   const pageSize = 5;
 
@@ -53,7 +246,7 @@ export default function DepartmentsPageContent({
 
   const totalPages = Math.ceil(
     filteredDepartments.length /
-      pageSize
+    pageSize
   );
 
   const paginatedDepartments =
@@ -88,6 +281,16 @@ export default function DepartmentsPageContent({
               rounded-xl transition
               font-medium shadow-sm
             "
+            onClick={() => {
+              setEditingDepartment(null);
+
+              setForm({
+                name: "",
+                description: "",
+              });
+
+              setOpen(true);
+            }}
           >
             <Plus size={18} />
             Thêm phòng ban
@@ -158,11 +361,24 @@ export default function DepartmentsPageContent({
               (department) => (
                 <tr
                   key={department.id}
+                  onClick={() => {
+                    setEditingDepartment(
+                      department
+                    );
 
+                    setForm({
+                      name: department.name,
+                      description:
+                        department.description || "",
+                    });
+
+                    setOpen(true);
+                  }}
                   className="
                     border-t
                     hover:bg-gray-50
                     transition
+                    cursor-pointer
                   "
                 >
 
@@ -170,7 +386,7 @@ export default function DepartmentsPageContent({
                     {department.name}
                   </td>
 
-                  <td className="p-4 text-gray-600">
+                  <td className="p-4 text-gray-600 text-ellipsis overflow-hidden whitespace-nowrap max-w-[8vw]">
                     {department.description ||
                       "Không có mô tả"}
                   </td>
@@ -208,21 +424,21 @@ export default function DepartmentsPageContent({
 
             {paginatedDepartments.length ===
               0 && (
-              <tr>
+                <tr>
 
-                <td
-                  colSpan={4}
+                  <td
+                    colSpan={4}
 
-                  className="
+                    className="
                     text-center py-10
                     text-gray-500
                   "
-                >
-                  Không có phòng ban
-                </td>
+                  >
+                    Không có phòng ban
+                  </td>
 
-              </tr>
-            )}
+                </tr>
+              )}
 
           </tbody>
 
@@ -237,7 +453,28 @@ export default function DepartmentsPageContent({
         totalPages={totalPages}
         onPageChange={setPage}
       />
-
+      <DepartmentModal
+        open={open}
+        onClose={() => setOpen(false)}
+        title={
+          editingDepartment
+            ? "Cập nhật phòng ban"
+            : "Thêm phòng ban"
+        }
+      >
+        <DepartmentForm
+          form={form}
+          setForm={setForm}
+          loading={loading}
+          isEdit={!!editingDepartment}
+          onDelete={handleDelete}
+          onSubmit={
+            editingDepartment
+              ? handleUpdate
+              : handleCreate
+          }
+        />
+      </DepartmentModal>
     </div>
   );
 }

@@ -103,8 +103,8 @@ export default function StatusEditor({
                                 <button
                                     key={key}
                                     className={`w-full text-left p-2 rounded-lg ${value === key
-                                            ? "bg-blue-50"
-                                            : "hover:bg-gray-50"
+                                        ? "bg-blue-50"
+                                        : "hover:bg-gray-50"
                                         }`}
                                     onClick={() =>
                                         setValue(key)
@@ -119,21 +119,49 @@ export default function StatusEditor({
                         )}
 
                     </div>
+                    <div className="
+      flex
+      gap-2
+      mt-3
+     ">
 
-                    <button
-                        disabled={loading}
-                        onClick={save}
-                        className="mt-3 w-full bg-blue-600 text-white rounded-lg p-2"
-                    >
+                        <button
 
-                        {
-                            loading
-                                ? "Đang lưu..."
-                                : "Xác nhận"
-                        }
+                            className="
+       flex-1
+       border
+       rounded-xl
+       py-2
+       "
 
-                    </button>
+                            onClick={() =>
+                                setOpen(false)
+                            }
 
+                        >
+
+                            Hủy
+
+                        </button>
+                        <button
+                            disabled={loading}
+                            onClick={save}
+                            className=" flex-1
+       bg-blue-600
+       text-white
+       rounded-xl
+       py-2"
+                        >
+
+                            {
+                                loading
+                                    ? "Đang lưu..."
+                                    : "Xác nhận"
+                            }
+
+                        </button>
+
+                    </div>
                 </div>
 
             )}

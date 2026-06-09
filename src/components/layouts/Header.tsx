@@ -12,13 +12,36 @@ import {
   useSession,
 } from "next-auth/react";
 
+const TYPE_LABELS = {
+  GENERAL: "Chung",
+  LEAVE: "Nghỉ phép",
+  TASK: "Công việc",
+  PROJECT: "Dự án",
+  SYSTEM: "Hệ thống",
+};
+
 export default function Header() {
   const { data: session } = useSession();
 
   const [open, setOpen] =
     useState(false);
 
+  const [openNotifications,
+    setOpenNotifications] =
+    useState(false);
+
+  const [notifications,
+    setNotifications] =
+    useState<any[]>([]);
+
+  const [loading,
+    setLoading] =
+    useState(false);
+
   const dropdownRef =
+    useRef<HTMLDivElement>(null);
+
+  const notificationRef =
     useRef<HTMLDivElement>(null);
 
   const handleLogout = async () => {
@@ -29,17 +52,34 @@ export default function Header() {
 
   // Close dropdown outside click
   useEffect(() => {
+
     function handleClickOutside(
       event: MouseEvent
     ) {
+
+      const target =
+        event.target as Node;
+
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(
-          event.target as Node
+          target
         )
       ) {
         setOpen(false);
       }
+
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(
+          target
+        )
+      ) {
+        setOpenNotifications(
+          false
+        );
+      }
+
     }
 
     document.addEventListener(
@@ -48,12 +88,123 @@ export default function Header() {
     );
 
     return () => {
+
       document.removeEventListener(
         "mousedown",
         handleClickOutside
       );
+
     };
+
   }, []);
+
+  const fetchNotifications =
+    async () => {
+
+      if (!session?.user?.id) {
+        return;
+      }
+
+      try {
+
+        setLoading(true);
+
+        const res = await fetch(
+          `/api/notifications?employeeId=${session.user.id}`
+        );
+
+        const data =
+          await res.json();
+
+        setNotifications(data);
+
+      } catch (error) {
+
+        console.error(error);
+
+      } finally {
+
+        setLoading(false);
+
+      }
+    };
+
+  const markAsRead = async (
+    notificationRecipientId: string
+  ) => {
+
+    try {
+
+      await fetch(
+        `/api/notifications/${notificationRecipientId}`,
+        {
+          method: "PATCH",
+        }
+      );
+
+      setNotifications(
+        (prev) =>
+          prev.map((item) =>
+            item.id ===
+              notificationRecipientId
+              ? {
+                ...item,
+                isRead: true,
+                readAt:
+                  new Date(),
+              }
+              : item
+          )
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  };
+
+  useEffect(() => {
+
+    if (
+      session?.user?.id
+    ) {
+      fetchNotifications();
+    }
+
+  }, [session?.user?.id]);
+
+  const handleDeleteNotification =
+    async (
+      notificationRecipientId: string
+    ) => {
+
+      try {
+
+        await fetch(
+          `/api/notifications/${notificationRecipientId}`,
+          {
+            method: "DELETE",
+          }
+        );
+
+        setNotifications(
+          (prev) =>
+            prev.filter(
+              (item) =>
+                item.id !==
+                notificationRecipientId
+            )
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
+
+    };
 
   return (
     <header
@@ -74,12 +225,26 @@ export default function Header() {
       {/* RIGHT */}
       <div className="flex items-center gap-5">
         <div className="hidden md:block text-left">
-              <p className="text-lg font-medium text-gray-700">
-                Xin chào, {session?.user?.name} !
-              </p>              
-            </div>
+          <p className="text-lg font-medium text-gray-700">
+            Xin chào, {session?.user?.name} !
+          </p>
+        </div>
+
         {/* Notification */}
-        <div className="relative cursor-pointer">
+        <div
+          ref={notificationRef}
+          onClick={() => {
+
+            setOpenNotifications(
+              (prev) => !prev
+            );
+
+            if (!openNotifications) {
+              fetchNotifications();
+            }
+
+          }}
+          className="relative cursor-pointer">
           <Bell
             className="
               text-gray-600
@@ -87,16 +252,224 @@ export default function Header() {
             "
           />
 
-          <span
-            className="
-              absolute -top-1 -right-1
-              bg-red-500 text-white text-xs
-              w-4 h-4 flex items-center
-              justify-center rounded-full
-            "
-          >
-            3
-          </span>
+          {notifications.filter(
+            (n) => !n.isRead
+          ).length > 0 && (
+              <span
+                className="
+          absolute -top-1 -right-1
+          bg-red-500 text-white text-xs
+          w-4 h-4
+          flex items-center
+          justify-center
+          rounded-full
+        "
+              >
+                {
+                  notifications.filter(
+                    (n) => !n.isRead
+                  ).length
+                }
+              </span>
+            )}
+
+          {openNotifications && (
+            <div
+              className="
+      absolute right-0 top-12
+      w-[420px]
+      bg-white border
+      rounded-2xl
+      shadow-xl
+      overflow-hidden
+      z-50
+    "
+            >
+
+              <div
+                className="
+        px-4 py-3
+        border-b
+        font-semibold
+      "
+              >
+                Thông báo
+              </div>
+
+              <div
+                className="
+        max-h-[500px]
+        overflow-y-auto
+      "
+              >
+
+                {loading ? (
+
+                  <div className="p-6 text-center">
+                    Đang tải...
+                  </div>
+
+                ) : notifications.length === 0 ? (
+
+                  <div
+                    className="
+            p-6 text-center
+            text-gray-500
+          "
+                  >
+                    Không có thông báo
+                  </div>
+
+                ) : (
+
+                  notifications.map(
+                    (item) => {
+
+                      const notification =
+                        item.notification;
+
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => {
+                            if (!item.isRead) {
+                              markAsRead(item.id);
+                            }
+                          }}
+                          className={`
+    group
+    p-4 border-b
+    hover:bg-gray-50
+    cursor-pointer
+    transition
+    ${!item.isRead
+                              ? "bg-blue-50"
+                              : ""
+                            }
+  `}
+                        >
+
+                          <div
+                            className="
+                    flex items-center
+                    justify-between
+                    gap-3
+                  "
+                          >
+
+                            <div className="flex-1">
+
+                              <div
+                                className="
+                        flex items-center
+                        gap-2 mb-1
+                      "
+                              >
+
+                                {!item.isRead && (
+                                  <span
+                                    className="
+                            w-2 h-2
+                            rounded-full
+                            bg-blue-600
+                          "
+                                  />
+                                )}
+
+                                <h4
+                                  className="
+                          font-medium
+                        "
+                                >
+                                  {
+                                    notification.title
+                                  }
+                                </h4>
+
+                              </div>
+
+                              {notification.content && (
+                                <p
+                                  className="
+                          text-sm
+                          text-gray-600
+                        "
+                                >
+                                  {
+                                    notification.content
+                                  }
+                                </p>
+                              )}
+
+                              <div
+                                className="
+                        mt-2
+                        text-xs
+                        text-gray-400
+                      "
+                              >
+                                {
+                                  notification.sender
+                                    ?.fullName
+                                }{" "}
+                                •{" "}
+                                {new Date(
+                                  item.createdAt
+                                ).toLocaleString(
+                                  "vi-VN"
+                                )}
+                              </div>
+
+                            </div>
+
+                            <span
+                              className="
+                      px-2 py-1
+                      text-[10px]
+                      rounded-full
+                      bg-slate-100
+                    "
+                            >
+                              {
+                                TYPE_LABELS[
+                                notification.type as keyof typeof TYPE_LABELS
+                                ]
+                              }
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+
+                                handleDeleteNotification(
+                                  item.id
+                                );
+                              }}
+                              className="
+      opacity-0
+      group-hover:opacity-100
+      transition
+      text-gray-400
+      hover:text-red-600
+      p-1
+      rounded
+    "
+                            >
+                              ✕
+                            </button>
+                          </div>
+
+                        </div>
+                      );
+                    }
+                  )
+
+                )}
+
+              </div>
+
+            </div>
+          )}
+
         </div>
 
         {/* User Dropdown */}
@@ -118,16 +491,41 @@ export default function Header() {
             "
           >
 
-            <img
-              src="https://i.pravatar.cc/40"
-              alt="avatar"
+            <div
+              title={session?.user?.name}
               className="
-                w-9 h-9 rounded-full
-                object-cover
-              "
-            />
+    h-9
+    w-9
+    rounded-full
+    overflow-hidden
+    border-2
+    border-white
+    -ml-2
+    first:ml-0
+    bg-slate-200
+    flex
+    items-center
+    justify-center
+    font-medium
+  "
+            >
+              {session?.user?.image ? (
+                <img
+                  src={session?.user?.image}
+                  alt={session?.user?.name}
+                  className="
+        h-full
+        w-full
+        object-cover
+      "
+                />
+              ) : (
+                session?.user?.name
+                  .charAt(0)
+                  .toUpperCase()
+              )}
+            </div>
 
-            
 
             <ChevronDown
               size={16}
@@ -155,13 +553,40 @@ export default function Header() {
 
                 <div className="flex items-center gap-3">
 
-                  <img
-                    src="https://i.pravatar.cc/40"
-                    alt="avatar"
+                  <div
+                    title={session?.user?.name}
                     className="
-                      w-11 h-11 rounded-full
-                    "
-                  />
+    h-9
+    w-9
+    rounded-full
+    overflow-hidden
+    border-2
+    border-white
+    -ml-2
+    first:ml-0
+    bg-slate-200
+    flex
+    items-center
+    justify-center
+    font-medium
+  "
+                  >
+                    {session?.user?.image ? (
+                      <img
+                        src={session?.user?.image}
+                        alt={session?.user?.name}
+                        className="
+        h-full
+        w-full
+        object-cover
+      "
+                      />
+                    ) : (
+                      session?.user?.name
+                        .charAt(0)
+                        .toUpperCase()
+                    )}
+                  </div>
 
                   <div>
                     <p className="font-medium text-gray-800">

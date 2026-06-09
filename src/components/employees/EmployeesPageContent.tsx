@@ -65,7 +65,7 @@ export default function EmployeesPageContent({
                     ?.toLowerCase()
                     .includes(keyword) ||
 
-                employee.department
+                employee.department.name
                     ?.toLowerCase()
                     .includes(keyword);
 

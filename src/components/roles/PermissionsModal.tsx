@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { PERMISSION_LABELS, ROLE_LABELS } from "./labels";
+import PermissionsModalSkeleton from "./PermissionsModalSkeleton";
 
 type Props = {
 
@@ -57,7 +58,6 @@ export default function PermissionsModal({
     onSave,
 
 }: Props) {
-
     useEffect(() => {
 
         setSelectedPermissions(
@@ -82,8 +82,11 @@ export default function PermissionsModal({
     if (!open)
         return null;
 
-    return (
+    if(!permissions.length){
+        return <PermissionsModalSkeleton />
+    }
 
+    return (
         <div
             className="
         fixed inset-0
@@ -374,7 +377,6 @@ gap-2
             </div>
 
         </div>
-
     );
 
 }

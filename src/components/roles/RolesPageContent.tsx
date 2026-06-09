@@ -231,25 +231,7 @@ export default function RolesPageContent({
 
                       </td>
 
-                      <td className="p-4">
-
-                        <div className="flex items-center gap-2">
-
-                          {/* Edit */}
-
-                          <button
-                            className="
-        p-2
-        rounded-lg
-        border
-        hover:bg-blue-50
-        transition
-      "
-                          >
-
-                            <Pencil size={16} />
-
-                          </button>
+                      <td className="p-4 col-auto">
 
                           {/* Permissions / Settings */}
                           <button
@@ -259,6 +241,7 @@ export default function RolesPageContent({
     border
     hover:bg-gray-100
     transition
+    cursor-pointer
   "
 
                             onClick={() => {
@@ -282,25 +265,6 @@ export default function RolesPageContent({
 
                           </button>
 
-                          {/* Delete */}
-
-                          <button
-                            className="
-        p-2
-        rounded-lg
-        border
-        hover:bg-red-50
-        text-red-600
-        transition
-      "
-                          >
-
-                            <Trash2 size={16} />
-
-                          </button>
-
-                        </div>
-
                       </td>
 
                     </tr>
@@ -315,7 +279,7 @@ export default function RolesPageContent({
                   <tr>
 
                     <td
-                      colSpan={4}
+                      colSpan={5}
                       className="
                 text-center
                 py-10

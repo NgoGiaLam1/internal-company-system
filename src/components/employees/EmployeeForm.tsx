@@ -1,5 +1,7 @@
 "use client";
 
+import { ROLE_LABELS } from "../roles/labels";
+
 type Props = {
   form: any;
 
@@ -195,7 +197,7 @@ export default function EmployeeForm({
         >
 
           <option value="ACTIVE">
-            Đang hoạt động
+            Đang làm việc
           </option>
 
           <option value="INACTIVE">
@@ -214,7 +216,7 @@ export default function EmployeeForm({
       <div className="col-span-2">
 
         <label className="text-sm text-gray-600">
-          Vai trò
+          Quyền hạn
         </label>
 
         <select
@@ -232,7 +234,7 @@ export default function EmployeeForm({
               key={role.id}
               value={role.id}
             >
-              {role.name}
+              {ROLE_LABELS[role.name]}
             </option>
           ))}
 

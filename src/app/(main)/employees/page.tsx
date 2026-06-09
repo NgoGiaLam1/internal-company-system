@@ -4,16 +4,21 @@ import EmployeesPageContent
 
 export default async function EmployeesPage() {
 
-  const employees =
-    await prisma.tblEmployee.findMany({
-      include: {
-        role: true,
-      },
+  const employees = await prisma.tblEmployee.findMany({
+    include: {
+      role: true,
 
-      orderBy: {
-        createdAt: "desc",
+      department: {
+        select: {
+          name: true,
+        },
       },
-    });
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   const roles =
     await prisma.tblRole.findMany({
