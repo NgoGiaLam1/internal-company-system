@@ -30,6 +30,7 @@ export const authOptions: AuthOptions = {
           where: {
             email: credentials.email,
           },
+
           include: {
             role: true,
           },
@@ -41,7 +42,7 @@ export const authOptions: AuthOptions = {
 
         const isValid = await bcrypt.compare(
           credentials.password,
-          user.password
+          user.password,
         );
 
         if (!isValid) {
@@ -50,9 +51,22 @@ export const authOptions: AuthOptions = {
 
         return {
           id: user.id,
-          email: user.email,
+
           name: user.fullName,
+
+          email: user.email,
+
+          image: user.avatarUrl,
+
+          phone: user.phone,
+
+          position: user.position,
+
           role: user.role.name,
+
+          departmentId: user.departmentId,
+
+          status: user.status,
         };
       },
     }),
@@ -67,22 +81,58 @@ export const authOptions: AuthOptions = {
   },
 
   callbacks: {
-  async jwt({ token, user }) {
-    if (user) {
-      token.role = (user as any).role;
-      token.id = user.id;
-    }
+    async jwt({ token, user, trigger, session }) {
+      if (user) {
+        token.id = user.id;
 
-    return token;
+        token.role = (user as any).role;
+
+        token.phone = (user as any).phone;
+
+        token.position = (user as any).position;
+
+        token.departmentId = (user as any).departmentId;
+
+        token.status = (user as any).status;
+
+        token.picture = user.image;
+      }
+
+      if (trigger === "update" && session) {
+        if ((session as any).name !== undefined) {
+          token.name = (session as any).name;
+        }
+
+        if ((session as any).phone !== undefined) {
+          token.phone = (session as any).phone;
+        }
+
+        if ((session as any).image !== undefined) {
+          token.picture = (session as any).image;
+        }
+      }
+
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).id = token.id;
+
+        (session.user as any).role = token.role;
+
+        (session.user as any).phone = token.phone;
+
+        (session.user as any).position = token.position;
+
+        (session.user as any).departmentId = token.departmentId;
+
+        (session.user as any).status = token.status;
+
+        session.user.image = token.picture as string;
+      }
+
+      return session;
+    },
   },
-
-  async session({ session, token }) {
-    if (session.user) {
-      (session.user as any).id = token.id;
-      (session.user as any).role = token.role;
-    }
-
-    return session;
-  },
-},  
 };
